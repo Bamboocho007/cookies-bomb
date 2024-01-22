@@ -8,16 +8,12 @@ import (
 	"github.com/Bamboocho007/cookies-bomb/db"
 	"github.com/Bamboocho007/cookies-bomb/db/models"
 	"github.com/google/uuid"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		panic(err.Error())
-	}
+	config.LoadEnvConfig()
 
-	envConfig := config.GetEnvConfig()
-	databaseUrl := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=disable", envConfig.UserName, envConfig.UserPassword, envConfig.Host, envConfig.Port, envConfig.DbName)
+	databaseUrl := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=disable", config.LoadedEnvConfig.UserName, config.LoadedEnvConfig.UserPassword, config.LoadedEnvConfig.Host, config.LoadedEnvConfig.Port, config.LoadedEnvConfig.DbName)
 
 	store := db.NewPostgresStore(databaseUrl)
 
