@@ -7,4 +7,5 @@ type EnvConfig struct {
 	Host         string
 	Port         string
 	JwtSecret    string
+	AppPort      string
 }

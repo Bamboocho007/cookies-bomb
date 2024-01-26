@@ -5,13 +5,15 @@ import (
 	_ "github.com/lib/pq"
 )
 
+var PostgressConnection *PostgresStore
+
 type PostgresStore struct {
 	databaseUrl string
 	Db          *sqlx.DB
 }
 
-func NewPostgresStore(databaseUrl string) *PostgresStore {
-	return &PostgresStore{databaseUrl: databaseUrl}
+func InitPostgresStore(databaseUrl string) {
+	PostgressConnection = &PostgresStore{databaseUrl: databaseUrl}
 }
 
 func (s *PostgresStore) Connect() error {
@@ -26,6 +28,6 @@ func (s *PostgresStore) Connect() error {
 	return nil
 }
 
-func (s *PostgresStore) Close() {
-	s.Db.Close()
+func (s *PostgresStore) Close() error {
+	return s.Db.Close()
 }

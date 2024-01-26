@@ -1,9 +1,11 @@
 package models
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+)
 
-type UserCecurity struct {
-	IsConfirmed bool `db:"is_confirmed"`
-	Password    string
-	UserId      uuid.UUID `db:"user_id"`
+type UserSecurity struct {
+	IsConfirmed  byte      `db:"is_confirmed"`
+	PasswordHash string    `db:"password_hash"`
+	UserId       uuid.UUID `db:"user_id"`
 }

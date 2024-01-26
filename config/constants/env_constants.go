@@ -7,4 +7,5 @@ const (
 	HostEnv         = "HOST_ENV"
 	PortEnv         = "PORT_ENV"
 	JwtSecretEnv    = "JWT_SECRET_ENV"
+	AppPortEnv      = "APP_PORT_ENV"
 )

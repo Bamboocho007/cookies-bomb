@@ -22,6 +22,7 @@ func LoadEnvConfig() {
 		Host:         getEnv(constants.HostEnv, ""),
 		Port:         getEnv(constants.PortEnv, ""),
 		JwtSecret:    getEnv(constants.JwtSecretEnv, ""),
+		AppPort:      getEnv(constants.AppPortEnv, ""),
 	}
 }
 
