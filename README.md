@@ -1,2 +1,7 @@
 Postgress connection example:
-postgresql://username:secretkey@localhost:5432/database_name?sslmode=disable
+
+postgresql://username:password@host:port/database_name?sslmode=disable
+
+migration:
+migrate create -ext sql -dir ./migrations -seq <migration_name>
+migrate -path ./migrations -database "postgresql://postgres:admin@localhost:5432/cookie_bomb?sslmode=disable" -verbose up
