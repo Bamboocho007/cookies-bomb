@@ -17,6 +17,10 @@ func Login(c *fiber.Ctx) error {
 		return parseJsonError
 	}
 
+	if validationError := loginDto.Validate(); validationError != nil {
+		return validationError
+	}
+
 	jwtString, loginError := auth.Login(loginDto)
 
 	if loginError != nil {
@@ -43,6 +47,10 @@ func CreateUser(c *fiber.Ctx) error {
 	parseBodyError := json.Unmarshal(c.Body(), &newUser)
 	if parseBodyError != nil {
 		return parseBodyError
+	}
+
+	if validationError := newUser.Validate(); validationError != nil {
+		return validationError
 	}
 
 	jwtString, createUserError := auth.CreateUser(newUser)
