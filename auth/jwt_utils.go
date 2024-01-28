@@ -2,17 +2,19 @@ package auth
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/Bamboocho007/cookies-bomb/auth/models"
 	"github.com/Bamboocho007/cookies-bomb/config"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
-func GenerateJWT(userEmail string) (string, error) {
+func GenerateJWT(id uuid.UUID) (string, error) {
 	expirationTime := time.Now().Add(time.Hour * 24)
 	claims := &models.AuthClaims{
-		Email: userEmail,
+		Id: id,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: &jwt.NumericDate{Time: expirationTime},
 		},
@@ -22,30 +24,29 @@ func GenerateJWT(userEmail string) (string, error) {
 	return token.SignedString([]byte(config.LoadedEnvConfig.JwtSecret))
 }
 
-func VerifyJWT(jwtString string) (*jwt.Token, error) {
-	// use claims in the futore to verify token deeper
+func VerifyJWT(jwtString string) (*jwt.Token, *models.AuthClaims, error) {
 	claims := &models.AuthClaims{}
 	token, parseError := jwt.ParseWithClaims(jwtString, claims, func(t *jwt.Token) (interface{}, error) {
-
-		return config.LoadedEnvConfig.JwtSecret, nil
+		fmt.Printf(config.LoadedEnvConfig.JwtSecret)
+		return []byte(config.LoadedEnvConfig.JwtSecret), nil
 	})
 
 	if parseError != nil {
-		return nil, parseError
+		return nil, nil, parseError
 	}
 
 	if !token.Valid {
-		return nil, errors.New("token not valid")
+		return nil, nil, errors.New("token not valid")
 	}
 
-	return token, nil
+	return token, claims, nil
 }
 
 func RefreshToken(jwtString string) (string, error) {
 	claims := &models.AuthClaims{}
 	token, parseError := jwt.ParseWithClaims(jwtString, claims, func(t *jwt.Token) (interface{}, error) {
 
-		return config.LoadedEnvConfig.JwtSecret, nil
+		return []byte(config.LoadedEnvConfig.JwtSecret), nil
 	})
 
 	if parseError != nil {
@@ -60,5 +61,5 @@ func RefreshToken(jwtString string) (string, error) {
 		return "", errors.New("token is fresh enough")
 	}
 
-	return GenerateJWT(claims.Email)
+	return GenerateJWT(claims.Id)
 }

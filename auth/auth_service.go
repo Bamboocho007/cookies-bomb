@@ -27,7 +27,7 @@ func Login(loginDto dto.LoginDto) (string, error) {
 		return "", compareHashError
 	}
 
-	jwtString, generateJWTError := GenerateJWT(user.Email)
+	jwtString, generateJWTError := GenerateJWT(user.Id)
 	if generateJWTError != nil {
 		return "", generateJWTError
 	}
@@ -65,5 +65,5 @@ func CreateUser(newUser dto.NewUserDto) (string, error) {
 		return "", createUserSecurityError
 	}
 
-	return GenerateJWT(userToSave.Email)
+	return GenerateJWT(userToSave.Id)
 }
