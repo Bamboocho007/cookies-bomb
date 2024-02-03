@@ -1,17 +1,17 @@
 package routes
 
 import (
-	"encoding/json"
+	"net/http"
 
 	"github.com/Bamboocho007/cookies-bomb/auth"
 	"github.com/Bamboocho007/cookies-bomb/dto"
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 )
 
-func Login(c *fiber.Ctx) error {
+func Login(c echo.Context) error {
 	loginDto := dto.LoginDto{}
 
-	parseJsonError := json.Unmarshal(c.Body(), &loginDto)
+	parseJsonError := c.Bind(&loginDto)
 
 	if parseJsonError != nil {
 		return parseJsonError
@@ -27,24 +27,29 @@ func Login(c *fiber.Ctx) error {
 		return loginError
 	}
 
-	c.Cookie(&fiber.Cookie{
-		Name:     "auth_jwt",
-		Value:    jwtString,
-		HTTPOnly: true,
-	})
+	cookie := new(http.Cookie)
+	cookie.Name = "auth_jwt"
+	cookie.Value = jwtString
 
-	return c.SendString("Access allowed!")
+	c.SetCookie(cookie)
+
+	return c.String(http.StatusOK, "Access allowed!")
 }
 
-func Logout(c *fiber.Ctx) error {
-	c.ClearCookie("auth_jwt")
+func Logout(c echo.Context) error {
+	cookie := new(http.Cookie)
+	cookie.Name = "auth_jwt"
+	cookie.Value = ""
+	cookie.MaxAge = -1
+
+	c.SetCookie(cookie)
 
 	return nil
 }
 
-func CreateUser(c *fiber.Ctx) error {
+func CreateUser(c echo.Context) error {
 	newUser := dto.NewUserDto{}
-	parseBodyError := json.Unmarshal(c.Body(), &newUser)
+	parseBodyError := c.Bind(&newUser)
 	if parseBodyError != nil {
 		return parseBodyError
 	}
@@ -58,11 +63,11 @@ func CreateUser(c *fiber.Ctx) error {
 		return createUserError
 	}
 
-	c.Cookie(&fiber.Cookie{
-		Name:     "auth_jwt",
-		Value:    jwtString,
-		HTTPOnly: true,
-	})
+	cookie := new(http.Cookie)
+	cookie.Name = "auth_jwt"
+	cookie.Value = jwtString
 
-	return c.SendString("User registered successfuly!")
+	c.SetCookie(cookie)
+
+	return c.String(http.StatusOK, "User registered successfuly!")
 }

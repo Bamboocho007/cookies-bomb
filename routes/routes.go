@@ -1,10 +1,12 @@
 package routes
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/labstack/echo/v4"
+)
 
-func ApplyAllRoutes(app *fiber.App) {
+func ApplyAllRoutes(app *echo.Echo) {
 	apiV1 := app.Group("/api/v1")
-	apiV1.Post("/login", Login)
-	apiV1.Post("/logout", Logout)
-	apiV1.Post("/createUser", CreateUser)
+	apiV1.POST("/login", Login)
+	apiV1.POST("/logout", Logout)
+	apiV1.POST("/createUser", CreateUser)
 }

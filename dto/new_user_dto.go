@@ -8,10 +8,11 @@ import (
 )
 
 type NewUserDto struct {
-	FirstName string `json:"firstName" validate:"required"`
-	LastName  string `json:"lastName" validate:"required"`
-	Email     string `json:"email" validate:"required,email"`
-	Password  string `json:"password" validate:"required,min=6"`
+	FirstName      string `json:"firstName" validate:"required"`
+	LastName       string `json:"lastName" validate:"required"`
+	Email          string `json:"email" validate:"required,email"`
+	Password       string `json:"password" validate:"required,min=6"`
+	PasswordRepeat string `json:"passwordRepeat" validate:"required,min=6"`
 }
 
 func (newUser *NewUserDto) Validate() *models.ErrorResponse {

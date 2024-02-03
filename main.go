@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/Bamboocho007/cookies-bomb/common/models"
 	"github.com/Bamboocho007/cookies-bomb/config"
 	"github.com/Bamboocho007/cookies-bomb/db"
 	"github.com/Bamboocho007/cookies-bomb/routes"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/template/html/v2"
+	"github.com/labstack/echo/v4"
 )
 
 func main() {
@@ -16,30 +16,29 @@ func main() {
 	databaseUrl := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=disable", config.LoadedEnvConfig.UserName, config.LoadedEnvConfig.UserPassword, config.LoadedEnvConfig.Host, config.LoadedEnvConfig.Port, config.LoadedEnvConfig.DbName)
 	db.InitPostgresStore(databaseUrl)
 
-	engine := html.New("./layouts", ".html")
+	e := echo.New()
 
-	app := fiber.New(fiber.Config{
-		Views: engine,
-		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
+	e.HTTPErrorHandler = func(err error, c echo.Context) {
+		code := http.StatusInternalServerError
 
-			if errorResponse, ok := err.(*models.ErrorResponse); ok {
-				ctx.Status(fiber.ErrBadRequest.Code).JSON(errorResponse)
-				return nil
-			}
+		if errorResponse, ok := err.(*models.ErrorResponse); ok {
+			c.Logger().Error(errorResponse)
+			return
+		}
 
-			return err
-		},
-	})
+		if he, ok := err.(*echo.HTTPError); ok {
+			code = he.Code
+		}
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.Render("index", fiber.Map{
-			"Hello": "Hello world!",
-		}, "menu", "footer", "header", "base")
-	})
+		c.Logger().Error(err)
 
-	routes.ApplyAllRoutes(app)
+		errorPage := fmt.Sprintf("%d.html", code)
+		if err := c.File(errorPage); err != nil {
+			c.Logger().Error(err)
+		}
+	}
 
-	app.Listen(fmt.Sprintf(":%s", config.LoadedEnvConfig.AppPort))
+	routes.ApplyAllRoutes(e)
 
-	fmt.Println("Project started!")
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", config.LoadedEnvConfig.AppPort)))
 }
